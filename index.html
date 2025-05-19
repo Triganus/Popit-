@@ -17,6 +17,14 @@
         
         <div class="controls">
             <button id="reset-button">Сбросить все</button>
+            <div class="sound-controls">
+                <label for="volume-slider">Громкость: <span id="volume-value">30%</span></label>
+                <input type="range" id="volume-slider" min="0" max="100" value="30">
+                <div class="sound-toggles">
+                    <label><input type="checkbox" id="sound-toggle" checked> Звук</label>
+                    <label><input type="checkbox" id="vibration-toggle" checked> Вибрация</label>
+                </div>
+            </div>
             <div class="color-picker">
                 <button class="color-btn" data-color="blue">Синий</button>
                 <button class="color-btn" data-color="pink">Розовый</button>

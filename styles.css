@@ -11,12 +11,14 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    touch-action: manipulation; /* Предотвращение лишних действий на тач-устройствах */
 }
 
 .container {
     text-align: center;
     max-width: 800px;
     padding: 20px;
+    width: 95%;
 }
 
 h1 {
@@ -50,6 +52,8 @@ p {
     transition: all 0.2s ease;
     box-shadow: inset 0 5px 10px rgba(255, 255, 255, 0.5),
                 inset 0 -5px 10px rgba(0, 0, 0, 0.2);
+    user-select: none; /* Предотвращение выделения на мобильных устройствах */
+    -webkit-tap-highlight-color: transparent; /* Убираем синее выделение на iOS */
 }
 
 .bubble:hover {
@@ -85,9 +89,66 @@ p {
     background-color: #3666d4;
 }
 
+/* Стили для звуковых элементов управления */
+.sound-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+    width: 100%;
+    max-width: 300px;
+}
+
+.sound-toggles {
+    display: flex;
+    gap: 15px;
+    margin-top: 5px;
+}
+
+.sound-toggles label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    user-select: none;
+}
+
+#volume-slider {
+    width: 100%;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #ddd;
+    outline: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4a77e5;
+    cursor: pointer;
+}
+
+#volume-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4a77e5;
+    cursor: pointer;
+    border: none;
+}
+
 .color-picker {
     display: flex;
     gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .color-btn {
@@ -97,6 +158,7 @@ p {
     cursor: pointer;
     font-size: 14px;
     transition: transform 0.2s;
+    min-width: 80px;
 }
 
 .color-btn:hover {
@@ -131,11 +193,36 @@ p {
 @media (max-width: 768px) {
     .popit-container {
         grid-template-columns: repeat(6, 1fr);
+        padding: 15px;
+        grid-gap: 8px;
+    }
+    
+    h1 {
+        font-size: 24px;
     }
 }
 
 @media (max-width: 480px) {
     .popit-container {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr);
+        padding: 12px;
+        grid-gap: 6px;
+    }
+    
+    h1 {
+        font-size: 20px;
+    }
+    
+    p {
+        font-size: 14px;
+    }
+    
+    .controls {
+        gap: 12px;
+    }
+    
+    #reset-button {
+        padding: 8px 16px;
+        font-size: 14px;
     }
 } 
