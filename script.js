@@ -2,7 +2,8 @@
 const ROWS = 6;
 const COLS = 6; 
 const POP_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2615/2615-preview.mp3';
-const VIBRATION_DURATION = 50; // Длительность вибрации в миллисекундах
+const VIBRATION_DURATION = 100; // Увеличил длительность вибрации до 100мс
+const VIBRATION_PATTERN = [100, 50, 100]; // Паттерн вибрации: вибрация-пауза-вибрация
 
 // Настройки звука и вибрации
 let soundEnabled = true;
@@ -22,14 +23,33 @@ const volumeValue = document.getElementById('volume-value');
 const soundToggle = document.getElementById('sound-toggle');
 const vibrationToggle = document.getElementById('vibration-toggle');
 
-// Проверка поддержки вибрации
-const hasVibrationSupport = 'vibrate' in navigator;
+// Проверка поддержки вибрации более подробно
+const hasVibrationSupport = 'vibrate' in navigator || 'mozVibrate' in navigator || 'webkitVibrate' in navigator;
+
+// Полифилл для вибрации в разных браузерах
+navigator.vibrate = navigator.vibrate || navigator.webkitVibrate || navigator.mozVibrate || function(){};
+
+// Тестовая функция активации вибрации при запуске (скрытая от пользователя)
+function testVibration() {
+    if (hasVibrationSupport) {
+        try {
+            // Короткая незаметная вибрация для "разблокировки" вибрации на устройстве
+            navigator.vibrate(1);
+            console.log('Тестовая вибрация выполнена');
+        } catch (e) {
+            console.error('Ошибка при тестировании вибрации:', e);
+        }
+    }
+}
 
 // Если вибрация не поддерживается, отключаем чекбокс
 if (!hasVibrationSupport) {
     vibrationToggle.disabled = true;
     vibrationToggle.parentElement.style.opacity = '0.5';
     vibrationToggle.parentElement.title = 'Ваше устройство не поддерживает вибрацию';
+} else {
+    // Пробуем выполнить тестовую вибрацию
+    testVibration();
 }
 
 // Функция для создания попита
@@ -66,8 +86,17 @@ vibrationToggle.addEventListener('change', function() {
 function triggerVibration() {
     if (vibrationEnabled && hasVibrationSupport) {
         try {
-            navigator.vibrate(VIBRATION_DURATION);
-            console.log('Вибрация активирована');
+            // Используем паттерн вибрации вместо одиночной
+            navigator.vibrate(VIBRATION_PATTERN);
+            console.log('Вибрация активирована:', VIBRATION_PATTERN);
+            
+            // Для некоторых устройств может потребоваться "форсированная" вибрация
+            setTimeout(() => {
+                if (vibrationEnabled) {
+                    navigator.vibrate(0); // Сначала отменяем текущую вибрацию
+                    navigator.vibrate(VIBRATION_DURATION * 2); // Затем запускаем более длительную
+                }
+            }, 50);
         } catch (error) {
             console.error('Ошибка при активации вибрации:', error);
         }
@@ -120,7 +149,18 @@ popitContainer.addEventListener('touchstart', (event) => {
     if (target && target.classList.contains('bubble') && !target.classList.contains('pressed')) {
         target.classList.add('pressed');
         playSound();
-        triggerVibration();
+        
+        // Принудительно вызываем вибрацию напрямую для тач-устройств
+        if (vibrationEnabled && hasVibrationSupport) {
+            // Пробуем несколько подходов для вибрации
+            navigator.vibrate && navigator.vibrate(VIBRATION_PATTERN);
+            window.navigator.vibrate && window.navigator.vibrate(VIBRATION_PATTERN);
+            
+            // Для iOS устройств (которые могут игнорировать первые вызовы)
+            setTimeout(() => {
+                navigator.vibrate && navigator.vibrate(VIBRATION_DURATION * 2);
+            }, 10);
+        }
     }
 }, { passive: false });
 
@@ -154,4 +194,26 @@ document.querySelector('.color-picker').addEventListener('click', (event) => {
 });
 
 // Инициализация попита при загрузке страницы
-document.addEventListener('DOMContentLoaded', createPopit); 
+document.addEventListener('DOMContentLoaded', function() {
+    createPopit();
+    
+    // Добавляем обработчик для инициализации вибрации при первом взаимодействии
+    document.body.addEventListener('click', function initVibration() {
+        if (hasVibrationSupport) {
+            // Первоначальная инициализация вибрации через пользовательское действие
+            navigator.vibrate(1);
+            console.log('Вибрация инициализирована после взаимодействия пользователя');
+        }
+        // Удаляем обработчик после первого использования
+        document.body.removeEventListener('click', initVibration);
+    }, { once: true });
+    
+    // Аналогично для тач-событий
+    document.body.addEventListener('touchstart', function initVibration() {
+        if (hasVibrationSupport) {
+            navigator.vibrate(1);
+            console.log('Вибрация инициализирована после тач-взаимодействия пользователя');
+        }
+        document.body.removeEventListener('touchstart', initVibration);
+    }, { once: true });
+}); 
