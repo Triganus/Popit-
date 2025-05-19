@@ -1,6 +1,6 @@
 // Константы для настройки попита
-const ROWS = 8;
-const COLS = 8; 
+const ROWS = 6;
+const COLS = 6; 
 const POP_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2615/2615-preview.mp3';
 const VIBRATION_DURATION = 50; // Длительность вибрации в миллисекундах
 
@@ -65,7 +65,12 @@ vibrationToggle.addEventListener('change', function() {
 // Функция для активации вибрации
 function triggerVibration() {
     if (vibrationEnabled && hasVibrationSupport) {
-        navigator.vibrate(VIBRATION_DURATION);
+        try {
+            navigator.vibrate(VIBRATION_DURATION);
+            console.log('Вибрация активирована');
+        } catch (error) {
+            console.error('Ошибка при активации вибрации:', error);
+        }
     }
 }
 
